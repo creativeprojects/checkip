@@ -1,0 +1,17 @@
+[Unit]
+Description=checkip
+ConditionPathExists=/opt/checkip
+After=network.target
+
+[Service]
+Type=notify
+DynamicUser=yes
+
+WorkingDirectory=/opt/checkip
+ExecStart=/opt/checkip/checkip
+
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
