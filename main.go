@@ -75,18 +75,11 @@ func main() {
 
 func getServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/favicon.ico", noContentStatus(http.StatusNoContent))
-	mux.HandleFunc("/robots.txt", noContentStatus(http.StatusNotFound))
 	mux.HandleFunc("/header", headerHandler)
+	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/", ipHandler)
 
 	return mux
-}
-
-func noContentStatus(status int) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(status)
-	}
 }
 
 func ipHandler(w http.ResponseWriter, r *http.Request) {
@@ -113,4 +106,9 @@ func headerHandler(w http.ResponseWriter, r *http.Request) {
 	for key, value := range r.Header {
 		w.Write([]byte(key + ": \"" + strings.Join(value, "\", \"") + "\"\n"))
 	}
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Cache-Control", "no-store")
+	w.Write([]byte("pong"))
 }
