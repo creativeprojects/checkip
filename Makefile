@@ -37,3 +37,4 @@ build-prod:
 
 deploy: build-prod
 		rsync -avz ${BUILD_PROD}/$(BINARY) $(DEPLOY_SERVER):$(DEPLOY_BINARY)
+		rsync -av robots.txt $(DEPLOY_SERVER):/var/www/checkip/robots.txt
