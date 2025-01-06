@@ -83,32 +83,33 @@ func getServeMux() *http.ServeMux {
 }
 
 func ipHandler(w http.ResponseWriter, r *http.Request) {
+	addHeaders(w)
 	ip := r.Header.Get("CF-Connecting-IP")
 	if ip == "" {
 		ip = r.Header.Get("X-Forwarded-For")
 		if strings.Contains(ip, ",") {
-			ip = strings.TrimSpace(strings.Split(ip, ",")[0])
+			ip = strings.TrimSpace(strings.SplitN(ip, ",", 1)[0])
 		}
 	}
 	if ip == "" {
 		ip = r.RemoteAddr
 	}
-	if strings.Contains(ip, ":") {
-		ip = strings.Split(ip, ":")[0]
-	}
 
-	w.Header().Add("Cache-Control", "no-store")
-	w.Write([]byte(ip))
+	w.Write([]byte(parseIP(ip)))
 }
 
 func headerHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Cache-Control", "no-store")
+	addHeaders(w)
 	for key, value := range r.Header {
 		w.Write([]byte(key + ": \"" + strings.Join(value, "\", \"") + "\"\n"))
 	}
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Cache-Control", "no-store")
+	addHeaders(w)
 	w.Write([]byte("pong"))
+}
+
+func addHeaders(w http.ResponseWriter) {
+	w.Header().Add("Cache-Control", "no-store")
 }
