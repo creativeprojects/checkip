@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charSet="utf-8" />
+    <title>Chrome Headless simple detection</title>
+</head>
+
+<body>
+    <ul>
+        <li>Headless: <span id="isHeadlessUserAgent"></span></li>
+        <li>Javascript: <span id="isJavaScriptEnabled"></span></li>
+        <li>Canvas: <span id="isCanvasSupported"></span></li>
+        <li>WebDriver: <span id="isWebDriverSupported"></span></li>
+        <li>Chrome: <span id="isWindowChromeSupported"></span></li>
+        <li>WebRTC: <span id="isWebRTCSupported"></span></li>
+        <li>Audio/Video: <span id="isAudioVideoSupported"></span></li>
+        <li>Permissions: <span id="isHeadlessPermissionMatched"></span></li>
+        <li>Plugins: <span id="pluginInstalled"></span></li>
+        <li>Languages: <span id="isHeadlessLanguage"></span></li>
+        <li>CDP: <span id="cdpDetected"></span></li>
+    </ul>
+    <script lang="javascript">
+        function result(id, value, expected) {
+            const element = document.getElementById(id)
+            var output = ""
+            if (value === true) {
+                output = "Yes"
+            } else if (value === false) {
+                output = "No"
+            } else {
+                output = value
+            }
+            if (value === expected) {
+                output += " &#x2705;"
+            } else {
+                output += " &#x274C;"
+            }
+            // element.textContent = output
+            element.setHTMLUnsafe(output)
+        }
+
+        const isHeadlessUserAgent = navigator.userAgent.toLowerCase().includes('headless')
+        result("isHeadlessUserAgent", isHeadlessUserAgent, false)
+
+        const isJavaScriptEnabled = typeof window !== 'undefined'
+        result("isJavaScriptEnabled", isJavaScriptEnabled, true)
+
+        const isCanvasSupported = () => {
+            const canvas = document.createElement('canvas')
+            const context = canvas.getContext('2d')
+            return !!context;
+        }
+        result("isCanvasSupported", isCanvasSupported(), true)
+
+        const isWebDriverSupported = () => {
+            return !!navigator.webdriver
+        }
+        result("isWebDriverSupported", isWebDriverSupported(), false)
+
+        const isWindowChromeSupported = () => {
+            return window.chrome !== undefined
+        }
+        result("isWindowChromeSupported", isWindowChromeSupported(), true)
+
+        const isWebRTCSupported = () => {
+            return !!window.RTCPeerConnection
+        }
+        result("isWebRTCSupported", isWebRTCSupported(), true)
+
+        const isAudioVideoSupported = () => {
+            const audio = document.createElement('audio')
+            const video = document.createElement('video')
+            return !!(audio.canPlayType && video.canPlayType)
+        }
+        result("isAudioVideoSupported", isAudioVideoSupported(), true)
+
+        const isHeadlessPermissionMatched = () => {
+            return navigator.permissions.query({ name: 'notifications' })
+                .then(permissionStatus => {
+                    return Notification.permission === 'denied' && permissionStatus.state === 'prompt'
+                })
+                .catch(() => {
+                    return false;
+                })
+        }
+        isHeadlessPermissionMatched().then(value => result("isHeadlessPermissionMatched", value, true))
+
+        const pluginInstalled = () => {
+            return navigator.plugins.length > 0
+        }
+        result("pluginInstalled", pluginInstalled(), true)
+
+        const isHeadlessLanguage = () => {
+            return !navigator.languages || navigator.languages.length === 0
+        }
+        result("isHeadlessLanguage", isHeadlessLanguage(), true)
+
+        var cdpDetected = false
+        var e = new Error()
+        Object.defineProperty(e, 'stack', {
+            get() {
+                cdpDetected = true
+            }
+        });
+
+        // This is part of the detection, the console.log shouldn't be removed!
+        console.log(e)
+        result("cdpDetected", cdpDetected, false)
+    </script>
+</body>
+
+</html>
