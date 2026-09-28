@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"io"
 	stdlog "log"
 	"net/http"
 	"os"
@@ -76,9 +75,11 @@ func main() {
 
 func getServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
+	fileServer := http.FileServerFS(Assets)
+	mux.Handle("/robots.txt", fileServer)
+	mux.Handle("/browser.html", fileServer)
 	mux.HandleFunc("/header", headerHandler)
 	mux.HandleFunc("/ping", pingHandler)
-	mux.HandleFunc("/browser", browserHandler)
 	mux.HandleFunc("/", ipHandler)
 
 	return mux
@@ -110,17 +111,6 @@ func headerHandler(w http.ResponseWriter, r *http.Request) {
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 	addHeaders(w)
 	w.Write([]byte("pong"))
-}
-
-func browserHandler(w http.ResponseWriter, _ *http.Request) {
-	addHeaders(w)
-	file, err := os.Open("browser.html")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-	_, _ = io.Copy(w, file)
 }
 
 func addHeaders(w http.ResponseWriter) {
