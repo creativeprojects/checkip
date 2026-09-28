@@ -76,6 +76,7 @@ func main() {
 func getServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	fileServer := http.FileServerFS(Assets)
+	mux.Handle("/favicon.ico", http.NotFoundHandler())
 	mux.Handle("/robots.txt", fileServer)
 	mux.Handle("/browser.html", fileServer)
 	mux.HandleFunc("/header", headerHandler)
