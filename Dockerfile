@@ -3,6 +3,8 @@
 # Stage 1: Build
 FROM golang:1.27-alpine AS builder
 
+RUN adduser -D -u 10001 appuser
+
 WORKDIR /app
 
 # Copy module files for caching
@@ -11,8 +13,8 @@ RUN go mod download
 
 # Copy source and build static binary
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOAMD64="v3" \
-    go build -ldflags="-s -w" -o /app/server .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -o /app/server .
 
 # Stage 2: Minimal Runtime
 FROM scratch
@@ -20,9 +22,11 @@ FROM scratch
 # Copy CA certificates for HTTPS support
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-# Copy binary
+COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /app/server /server
 
+USER 10001
+
 # Expose port and run
-EXPOSE 8080
-ENTRYPOINT ["/server"]
+EXPOSE 8133
+ENTRYPOINT ["/server", "-host", "0.0.0.0", "-port", "8133"]
