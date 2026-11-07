@@ -2,8 +2,6 @@ services:
   checkip:
     build: .
     user: "10001"
-    ports:
-      - "8133:8133"
     networks:
       - caddy
 
