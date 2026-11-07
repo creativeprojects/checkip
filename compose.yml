@@ -1,5 +1,6 @@
 services:
   checkip:
+    container_name: checkip
     build: .
     user: "10001"
     networks:
