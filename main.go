@@ -116,4 +116,5 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 
 func addHeaders(w http.ResponseWriter) {
 	w.Header().Add("Cache-Control", "no-store")
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 }

@@ -22,6 +22,9 @@ FROM scratch
 # Copy CA certificates for HTTPS support
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
+# Copy healthcheck binary
+COPY --from=ghcr.io/creativeprojects/healthcheck:latest /healthcheck /healthcheck
+
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /app/server /server
 
